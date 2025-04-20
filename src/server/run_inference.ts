@@ -1,35 +1,15 @@
 import { exec } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-// Get the directory name in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export function runInference(): Promise<string> {
   return new Promise((resolve, reject) => {
-    const projectRoot = path.resolve(__dirname, "..");
-    const scriptPath = path.join(
-      projectRoot,
-      "lerobot",
-      "lerobot",
-      "scripts",
-      "control_robot.py"
-    );
+    const projectRoot = process.cwd(); // point to oddish-water repo root
 
-    const command = `conda run -n lerobot python ${scriptPath} \
-      --robot.type=so100 \
-      --control.type=record \
-      --control.fps=30 \
-      --control.single_task="Grasp the black cup, lift it towards the plant pot, tilt the cup to pour out its contents, tilt it back, and return it to its original position." \
-      --control.repo_id=local_test_repo \
-      --control.tags='["web_triggered"]' \
-      --control.warmup_time_s=5 \
-      --control.episode_time_s=40 \
-      --control.reset_time_s=30 \
-      --control.num_episodes=1 \
-      --control.push_to_hub=false \
-      --control.policy.path=src/lerobot/outputs/train/plant_pour_data_again/checkpoints/last/pretrained_model`;
+    // Path to your bash script
+    const scriptPath = path.join(projectRoot, "scripts", "run_inference.sh");
+
+    // Construct the command to run the bash script
+    const command = `bash ${scriptPath}`;
 
     exec(command, (error, stdout, stderr) => {
       if (error) {

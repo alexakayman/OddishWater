@@ -90,18 +90,18 @@ export function AIVoiceInput({
             "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
             submitted
               ? "bg-none"
-              : "bg-none hover:bg-white/10 dark:hover:bg-white/10"
+              : "bg-none hover:bg-emerald-100/10 dark:hover:bg-slate-800/10"
           )}
           type="button"
           onClick={handleClick}
         >
           {submitted ? (
             <div
-              className="w-6 h-6 rounded-sm animate-spin bg-white dark:bg-white cursor-pointer pointer-events-auto"
+              className="w-6 h-6 rounded-sm animate-spin bg-emerald-800 dark:bg-amber-200 cursor-pointer pointer-events-auto"
               style={{ animationDuration: "3s" }}
             />
           ) : (
-            <Mic className="w-6 h-6 text-white/70 dark:text-white/70" />
+            <Mic className="w-6 h-6 text-emerald-800/70 dark:text-amber-200/70" />
           )}
         </button>
 
@@ -109,8 +109,8 @@ export function AIVoiceInput({
           className={cn(
             "font-mono text-sm transition-opacity duration-300",
             submitted
-              ? "text-white/70 dark:text-white/70"
-              : "text-white/30 dark:text-white/30"
+              ? "text-emerald-800/70 dark:text-amber-200/70"
+              : "text-emerald-800/30 dark:text-amber-200/30"
           )}
         >
           {formatTime(time)}
@@ -123,8 +123,8 @@ export function AIVoiceInput({
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
                 submitted
-                  ? "bg-white/50 dark:bg-white/50 animate-pulse"
-                  : "bg-white/10 dark:bg-white/10 h-1"
+                  ? "bg-emerald-800/50 dark:bg-amber-200/50 animate-pulse"
+                  : "bg-emerald-800/10 dark:bg-amber-200/10 h-1"
               )}
               style={
                 submitted && isClient
@@ -138,7 +138,7 @@ export function AIVoiceInput({
           ))}
         </div>
 
-        <p className="h-4 text-xs text-white/70 dark:text-white/70">
+        <p className="h-4 text-xs text-emerald-800/70 dark:text-amber-200/70">
           {submitted ? "Listening..." : "Click to speak"}
         </p>
       </div>

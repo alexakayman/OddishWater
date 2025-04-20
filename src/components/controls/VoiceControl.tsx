@@ -4,11 +4,13 @@ import { useState, useRef, useCallback, useEffect } from "react";
 interface VoiceControlProps {
   startWatering: () => void;
   stopWatering: () => void;
+  onTranscription?: (result: any, recordings: { duration: number; timestamp: Date }[]) => void;
 }
 
 export function VoiceControl({
   startWatering,
   stopWatering,
+  onTranscription,
 }: VoiceControlProps) {
   const [recordings, setRecordings] = useState<
     { duration: number; timestamp: Date }[]
@@ -18,6 +20,7 @@ export function VoiceControl({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const recordingTimeRef = useRef<number>(0);
 
   // Clean up function to stop all media resources
   const cleanupMediaResources = useCallback(() => {
@@ -109,6 +112,7 @@ export function VoiceControl({
       // Request data in smaller chunks for better streaming
       mediaRecorder.start(100); // Collect 100ms chunks
       setIsRecording(true);
+      recordingTimeRef.current = 0;
       console.log("Recording started");
     } catch (error) {
       console.error("Error starting recording:", error);
@@ -199,6 +203,11 @@ export function VoiceControl({
           console.error("Error running robot inference:", error);
         }
       }
+      
+      // Call the onTranscription callback if provided
+      if (onTranscription) {
+        onTranscription(result, recordings);
+      }
     } catch (error) {
       console.error("Error sending audio to backend:", error);
     }
@@ -212,6 +221,7 @@ export function VoiceControl({
 
   const handleStop = useCallback((duration: number) => {
     console.log("handleStop called with duration:", duration);
+    recordingTimeRef.current = duration;
     stopRecording();
     setRecordings((prev) => [
       ...prev.slice(-4),
@@ -220,20 +230,11 @@ export function VoiceControl({
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <AIVoiceInput
-          onStart={handleStart}
-          onStop={handleStop}
-        />
-        {transcription && (
-          <div className="text-sm text-black">
-            <h3 className="font-medium mb-2">Transcription:</h3>
-            <p className="mb-2">{transcription.text}</p>
-            <p>Duration: {transcription.duration?.toFixed(2)}s</p>
-          </div>
-        )}
-      </div>
+    <div className="voice-control-container">
+      <AIVoiceInput
+        onStart={handleStart}
+        onStop={handleStop}
+      />
     </div>
   );
 }

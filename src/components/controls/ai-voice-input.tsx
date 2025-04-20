@@ -26,31 +26,43 @@ export function AIVoiceInput({
   const [isClient, setIsClient] = useState(false);
   const [isDemo, setIsDemo] = useState(demoMode);
   const processingRef = useRef(false);
+  const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-
     if (submitted && !processingRef.current) {
       processingRef.current = true;
       onStart?.();
-      intervalId = setInterval(() => {
+      
+      // Start the timer
+      intervalIdRef.current = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
+      
     } else if (!submitted && processingRef.current) {
-      if (intervalId) clearInterval(intervalId);
+      // Clear the interval when stopping
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+        intervalIdRef.current = null;
+      }
+      
       onStop?.(time);
       setTime(0);
       processingRef.current = false;
     }
 
+    // Cleanup function
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+        intervalIdRef.current = null;
+      }
     };
-  }, [submitted, time, onStart, onStop]);
+    // Remove 'time' from the dependency array so the effect doesn't re-run every second
+  }, [submitted, onStart, onStop]);
 
   useEffect(() => {
     if (!isDemo) return;

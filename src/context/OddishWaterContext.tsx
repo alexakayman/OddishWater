@@ -8,6 +8,7 @@ interface OddishWaterContextType {
   startWatering: () => void;
   stopWatering: () => void;
   toggleDarkMode: () => void;
+  addLog: (log: Log) => void;
 }
 
 export const OddishWaterContext = createContext<OddishWaterContextType>({
@@ -17,6 +18,7 @@ export const OddishWaterContext = createContext<OddishWaterContextType>({
   startWatering: () => {},
   stopWatering: () => {},
   toggleDarkMode: () => {},
+  addLog: () => {},
 });
 
 interface OddishWaterProviderProps {
@@ -30,64 +32,63 @@ export const OddishWaterProvider: React.FC<OddishWaterProviderProps> = ({
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [logs, setLogs] = useState<Log[]>([]);
 
-  // Add activity logs while robot is running
-  useEffect(() => {
-    if (!isRunning) return;
+  const addLog = (log: Log) => {
+    setLogs((prevLogs) => [log, ...prevLogs].slice(0, 20)); // Keep only most recent 20 logs
+  };
 
-    const logTypes: LogType[] = ["plant", "water", "warning", "success"];
+  // Add activity logs immediately on page load
+  useEffect(() => {
+    const logTypes: LogType[] = ["plant", "nutrients", "warning", "success"];
     const messages = [
-      "Plant detected: Hoyo",
-      "Soil moisture: 30%, watering needed",
-      "Watering plant for 5 seconds",
-      "Watering plant for 3 seconds",
-      "Warning: Plant not in expected position",
-      "Success: Watering cycle completed",
-      "Success: Plant appears healthier",
+      "System initialized and ready",
+      "Monitoring plant environment",
+      "Checking soil conditions",
+      "Analyzing nutrient levels",
+      "System operating normally",
+      "Plant health assessment in progress",
+      "Environmental sensors active",
+      "Nutrient delivery system ready",
+      "Plant detection system active",
+      "System status: Optimal",
     ];
+
+    // Add initial system status log
+    addLog({
+      type: "success",
+      message: "OddishWater system initialized and ready",
+      timestamp: new Date(),
+    });
 
     const interval = setInterval(() => {
       const randomType = logTypes[Math.floor(Math.random() * logTypes.length)];
-      let message = "";
+      const message = messages[Math.floor(Math.random() * messages.length)];
 
-      switch (randomType) {
-        case "plant":
-          message = messages[Math.floor(Math.random() * 4)];
-          break;
-        case "water":
-          message = messages[4 + Math.floor(Math.random() * 4)];
-          break;
-        case "warning":
-          message = messages[8 + Math.floor(Math.random() * 2)];
-          break;
-        case "success":
-          message = messages[10 + Math.floor(Math.random() * 2)];
-          break;
-      }
-
-      addLog(randomType, message);
+      addLog({
+        type: randomType,
+        message,
+        timestamp: new Date(),
+      });
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isRunning]);
-
-  const addLog = (type: LogType, message: string) => {
-    const newLog: Log = {
-      type,
-      message,
-      timestamp: new Date(),
-    };
-
-    setLogs((prevLogs) => [newLog, ...prevLogs].slice(0, 20)); // Keep only most recent 20 logs
-  };
+  }, []);
 
   const startWatering = () => {
     setIsRunning(true);
-    addLog("success", "Robot started watering process");
+    addLog({
+      type: "success",
+      message: "Robot started nutrient delivery process",
+      timestamp: new Date(),
+    });
   };
 
   const stopWatering = () => {
     setIsRunning(false);
-    addLog("warning", "Robot stopped watering process");
+    addLog({
+      type: "warning",
+      message: "Robot stopped nutrient delivery process",
+      timestamp: new Date(),
+    });
   };
 
   const toggleDarkMode = () => {
@@ -103,6 +104,7 @@ export const OddishWaterProvider: React.FC<OddishWaterProviderProps> = ({
         startWatering,
         stopWatering,
         toggleDarkMode,
+        addLog,
       }}
     >
       {children}

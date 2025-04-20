@@ -1,26 +1,36 @@
 import React, { useContext, useEffect, useState } from "react";
 import { OddishWaterContext } from "../../context/OddishWaterContext";
 import { BarChart3, Droplets, Plane as Plant } from "lucide-react";
-import LogEntry from "./LogEntry";
+import LogEntry, { Log, LogType } from "./LogEntry";
 
 const StatsPanel: React.FC = () => {
-  const { isRunning, logs, isDarkMode } = useContext(OddishWaterContext);
+  const { logs, isDarkMode, addLog } = useContext(OddishWaterContext);
   const [plantCount, setPlantCount] = useState(0);
   const [nutrientsAmount, setNutrientsAmount] = useState(0);
 
   useEffect(() => {
-    if (isRunning) {
-      // Simulate incrementing stats when running
-      const interval = setInterval(() => {
-        if (Math.random() > 0.7 && plantCount < 1) {
-          setPlantCount((prev) => prev + 1);
-        }
-        setNutrientsAmount((prev) => prev + Math.random() * 5);
-      }, 5000);
+    // Start incrementing stats immediately
+    const interval = setInterval(() => {
+      if (Math.random() > 0.7 && plantCount < 1) {
+        setPlantCount((prev) => prev + 1);
+        addLog({
+          type: "plant",
+          message: "Plant detected in the environment",
+          timestamp: new Date(),
+        });
+      }
 
-      return () => clearInterval(interval);
-    }
-  }, [isRunning, plantCount]);
+      const newNutrients = Math.random() * 5;
+      setNutrientsAmount((prev) => prev + newNutrients);
+      addLog({
+        type: "nutrients",
+        message: `Added ${newNutrients.toFixed(1)}g of nutrients`,
+        timestamp: new Date(),
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [plantCount, addLog]);
 
   return (
     <div
@@ -113,7 +123,7 @@ const StatsPanel: React.FC = () => {
                   isDarkMode ? "text-amber-200/50" : "text-emerald-800/50"
                 }`}
               >
-                No activity logged yet. Start the robot to begin logging.
+                No activity logged yet.
               </div>
             )}
           </div>

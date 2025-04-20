@@ -4,6 +4,7 @@ import VideoFeed from "../video/VideoFeed";
 import ControlPanel from "../controls/ControlPanel";
 import StatsPanel from "../stats/StatsPanel";
 import TreatmentVote from "../stats/TreatmentVote";
+import OddishMascot from "./OddishMascot";
 import { OddishWaterContext } from "../../context/OddishWaterContext";
 
 const AppLayout: React.FC = () => {
@@ -36,6 +37,8 @@ const AppLayout: React.FC = () => {
           plants
         </p>
       </footer>
+
+      <OddishMascot />
     </div>
   );
 };

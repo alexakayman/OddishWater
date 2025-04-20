@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { OddishWaterContext } from "../../context/OddishWaterContext";
 import { Droplets, Coffee, Zap } from "lucide-react";
+import { Manager } from "socket.io-client";
 
 interface VoteCount {
   water: number;
@@ -16,14 +17,37 @@ const TreatmentVote: React.FC = () => {
     redBull: 0,
   });
   const [hasVoted, setHasVoted] = useState(false);
+  const [socket, setSocket] = useState<ReturnType<
+    typeof Manager.prototype.socket
+  > | null>(null);
+
+  useEffect(() => {
+    // Initialize Socket.IO connection
+    const manager = new Manager("http://localhost:3001");
+    const newSocket = manager.socket("/");
+    setSocket(newSocket);
+
+    // Listen for vote count updates
+    newSocket.on("voteCounts", (counts: VoteCount) => {
+      setVoteCount(counts);
+    });
+
+    // Check if user has already voted (using localStorage)
+    const voted = localStorage.getItem("hasVoted");
+    if (voted) {
+      setHasVoted(true);
+    }
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
 
   const handleVote = (treatment: keyof VoteCount) => {
-    if (!hasVoted) {
-      setVoteCount((prev) => ({
-        ...prev,
-        [treatment]: prev[treatment] + 1,
-      }));
+    if (!hasVoted && socket) {
+      socket.emit("vote", treatment);
       setHasVoted(true);
+      localStorage.setItem("hasVoted", "true");
     }
   };
 

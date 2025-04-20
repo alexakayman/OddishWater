@@ -36,15 +36,10 @@ export const OddishWaterProvider: React.FC<OddishWaterProviderProps> = ({
 
     const logTypes: LogType[] = ["plant", "water", "warning", "success"];
     const messages = [
-      "Plant detected: Pothos",
-      "Plant detected: Snake Plant",
-      "Plant detected: Monstera",
-      "Plant detected: Succulent",
+      "Plant detected: Hoyo",
+      "Soil moisture: 30%, watering needed",
       "Watering plant for 5 seconds",
       "Watering plant for 3 seconds",
-      "Soil moisture: 30%, watering needed",
-      "Soil moisture: 70%, skipping watering",
-      "Warning: Low water level in reservoir",
       "Warning: Plant not in expected position",
       "Success: Watering cycle completed",
       "Success: Plant appears healthier",

@@ -1,7 +1,7 @@
 "use client";
 
 import { Mic } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "../../lib/utils";
 
 interface AIVoiceInputProps {
@@ -25,25 +25,31 @@ export function AIVoiceInput({
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isDemo, setIsDemo] = useState(demoMode);
+  const processingRef = useRef(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout | null = null;
 
-    if (submitted) {
+    if (submitted && !processingRef.current) {
+      processingRef.current = true;
       onStart?.();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else {
+    } else if (!submitted && processingRef.current) {
+      if (intervalId) clearInterval(intervalId);
       onStop?.(time);
       setTime(0);
+      processingRef.current = false;
     }
 
-    return () => clearInterval(intervalId);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [submitted, time, onStart, onStop]);
 
   useEffect(() => {
@@ -78,6 +84,11 @@ export function AIVoiceInput({
       setIsDemo(false);
       setSubmitted(false);
     } else {
+      if (processingRef.current) {
+        console.log("Stopping recording...");
+      } else {
+        console.log("Starting recording...");
+      }
       setSubmitted((prev) => !prev);
     }
   };
@@ -94,6 +105,7 @@ export function AIVoiceInput({
           )}
           type="button"
           onClick={handleClick}
+          disabled={processingRef.current && !submitted}
         >
           {submitted ? (
             <div

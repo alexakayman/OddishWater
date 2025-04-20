@@ -9,27 +9,33 @@ const StatsPanel: React.FC = () => {
   const [nutrientsAmount, setNutrientsAmount] = useState(0);
 
   useEffect(() => {
-    // Start incrementing stats immediately
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7 && plantCount < 1) {
-        setPlantCount((prev) => prev + 1);
+    // Initial quick detection
+    const initialTimeout = setTimeout(() => {
+      if (plantCount < 1) {
+        setPlantCount(1);
         addLog({
           type: "plant",
           message: "Plant detected in the environment",
           timestamp: new Date(),
         });
       }
+    }, 1000);
 
-      const newNutrients = Math.random() * 5;
+    // Start incrementing stats immediately with shorter interval
+    const interval = setInterval(() => {
+      const newNutrients = Math.random() * 2; // Smaller increments
       setNutrientsAmount((prev) => prev + newNutrients);
       addLog({
         type: "nutrients",
         message: `Added ${newNutrients.toFixed(1)}g of nutrients`,
         timestamp: new Date(),
       });
-    }, 5000);
+    }, 2000); // Shorter interval
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, [plantCount, addLog]);
 
   return (

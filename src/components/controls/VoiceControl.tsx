@@ -171,6 +171,11 @@ export function VoiceControl({
       console.log("Transcription result:", result);
       setTranscription(result);
       
+      // Call the onTranscription callback immediately after receiving the transcription
+      if (onTranscription) {
+        onTranscription(result, recordings);
+      }
+      
       // Process commands based on transcription
       if (result.text) {
         const text = result.text.toLowerCase();
@@ -202,11 +207,6 @@ export function VoiceControl({
         } catch (error) {
           console.error("Error running robot inference:", error);
         }
-      }
-      
-      // Call the onTranscription callback if provided
-      if (onTranscription) {
-        onTranscription(result, recordings);
       }
     } catch (error) {
       console.error("Error sending audio to backend:", error);

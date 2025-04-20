@@ -177,6 +177,27 @@ export function VoiceControl({
           console.log("Voice command: Stop watering");
           stopWatering();
         }
+        
+        // Always run robot inference for any transcription
+        console.log("Running robot inference after transcription");
+        try {
+          const inferenceResponse = await fetch('http://localhost:3001/api/run-inference', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!inferenceResponse.ok) {
+            const errorText = await inferenceResponse.text();
+            throw new Error(`HTTP error! Status: ${inferenceResponse.status}, Details: ${errorText}`);
+          }
+          
+          const inferenceResult = await inferenceResponse.json();
+          console.log("Robot inference completed:", inferenceResult);
+        } catch (error) {
+          console.error("Error running robot inference:", error);
+        }
       }
     } catch (error) {
       console.error("Error sending audio to backend:", error);

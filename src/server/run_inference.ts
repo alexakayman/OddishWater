@@ -1,5 +1,10 @@
-import { exec } from "child_process";
-import path from "path";
+import { exec } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function runInference(): Promise<string> {
   return new Promise((resolve, reject) => {

@@ -3,7 +3,6 @@ import Header from "./Header";
 import VideoFeed from "../video/VideoFeed";
 import ControlPanel from "../controls/ControlPanel";
 import StatsPanel from "../stats/StatsPanel";
-import TreatmentVote from "../stats/TreatmentVote";
 import OddishMascot from "./OddishMascot";
 import { OddishWaterContext } from "../../context/OddishWaterContext";
 
@@ -21,7 +20,6 @@ const AppLayout: React.FC = () => {
       <main className="flex-grow flex flex-col items-center justify-start px-4 py-6 md:py-8">
         <div className="max-w-4xl w-full space-y-6">
           <ControlPanel />
-          <TreatmentVote />
           <VideoFeed />
           <StatsPanel />
         </div>

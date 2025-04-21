@@ -16,7 +16,7 @@ python lerobot/scripts/control_robot.py \
   --control.repo_id=${HF_USER}/eval_act_${RAND_ID} \
   --control.tags='["tutorial"]' \
   --control.warmup_time_s=3 \
-  --control.episode_time_s=40 \
+  --control.episode_time_s=30 \
   --control.reset_time_s=30 \
   --control.num_episodes=1 \
   --control.push_to_hub=false \

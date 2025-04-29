@@ -38,6 +38,24 @@ from lerobot.common.robot_devices.utils import busy_wait
 from lerobot.common.utils.utils import get_safe_torch_device, has_method
 
 
+# SERVO SMOOTHING CLASS:
+class ServoSmoother:
+    def __init__(self, alpha=0.2):
+        self.prev_action = None
+        self.alpha = alpha
+
+    def smooth(self, action):
+        if self.prev_action is None:
+            self.prev_action = action
+        smoothed_action = {
+            k: self.alpha * action[k] + (1 - self.alpha) * self.prev_action[k]
+            for k in action
+        }
+        self.prev_action = smoothed_action
+        return smoothed_action
+
+
+
 def log_control_info(robot: Robot, dt_s, episode_index=None, frame_index=None, fps=None):
     log_items = []
     if episode_index is not None:
@@ -221,6 +239,7 @@ def control_loop(
     policy: PreTrainedPolicy = None,
     fps: int | None = None,
     single_task: str | None = None,
+    smoother = ServoSmoother(alpha=0.2)
 ):
     # TODO(rcadene): Add option to record logs
     if not robot.is_connected:
@@ -248,6 +267,12 @@ def control_loop(
 
         if teleoperate:
             observation, action = robot.teleop_step(record_data=True)
+
+            # Apply smoothing from teacher to student
+            if isinstance(action, dict) and "teacher" in action and "student" in robot.arms:
+                smoothed_student_action = smoother.smooth(action["teacher"])
+                action["student"] = smoothed_student_action
+                robot.send_action(action)
         else:
             observation = robot.capture_observation()
 
@@ -255,6 +280,9 @@ def control_loop(
                 pred_action = predict_action(
                     observation, policy, get_safe_torch_device(policy.config.device), policy.config.use_amp
                 )
+                if isinstance(pred_action, dict) and "teacher" in pred_action and "student" in robot.arms:
+                    pred_action["student"] = smoother.smooth(pred_action["teacher"])
+
                 # Action can eventually be clipped using `max_relative_target`,
                 # so action actually sent is saved in the dataset.
                 action = robot.send_action(pred_action)
